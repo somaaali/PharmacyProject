@@ -5,7 +5,9 @@ namespace Pharmacy.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
-	public class PatientController : ControllerBase
+    [Authorize(Roles = StaticUserRoles.ADMIN)]
+
+    public class PatientController : ControllerBase
 	{
 
 		
