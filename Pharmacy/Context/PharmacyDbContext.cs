@@ -1,5 +1,4 @@
-﻿using Pharmacy.Models;
-
+﻿
 namespace Pharmacy.Context
 {
 	public class PharmacyDbContext :IdentityDbContext<ApplicationUser>

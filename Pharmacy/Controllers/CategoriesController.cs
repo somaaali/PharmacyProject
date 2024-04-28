@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Pharmacy.Dtos;
-using Pharmacy.Models;
-using Pharmacy.Roles;
+﻿
 
 namespace Pharmacy.Controllers
 {
@@ -38,8 +33,8 @@ namespace Pharmacy.Controllers
 			[HttpGet("{name}")]
 			public async Task<IActionResult> GetByName(string name)
 			{
-				var Category = await _context.Categories.FindAsync(name);
-				if (Category == null)
+				var Category = await _context.Categories.Where(c => c.Name == name).FirstOrDefaultAsync();
+            if (Category == null)
 					return NotFound();
 				var dto = new CategoryDto
 				{
@@ -47,7 +42,7 @@ namespace Pharmacy.Controllers
 
 				};
 				return Ok(dto);
-			}
+			}	
 		#endregion
 
 			#region AddCategory api/Categories

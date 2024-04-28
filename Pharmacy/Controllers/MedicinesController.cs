@@ -1,10 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Pharmacy.Dtos;
-using Pharmacy.Models;
-using Pharmacy.Roles;
-
+﻿
 namespace Pharmacy.Controllers
 {
 	[Route("api/[controller]")]

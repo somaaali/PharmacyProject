@@ -1,11 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using Pharmacy.Dtos;
-using Pharmacy.Models;
-using Pharmacy.Roles;
-using System.Security.Claims;
-using System.Text;
+﻿
 
 namespace Pharmacy.Controllers
 {
@@ -98,6 +91,7 @@ namespace Pharmacy.Controllers
 
 			return Ok("User is Admin now");
 		}
+
 		[HttpPost]
 		[Route("login")]
 		public async Task<IActionResult> LoginAsync(LoginDto loginDto)
