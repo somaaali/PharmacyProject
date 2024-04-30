@@ -1,4 +1,5 @@
-﻿using Pharmacy.Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using Pharmacy.Repositories;
 
 namespace Pharmacy.Controllers
 {
@@ -169,11 +170,49 @@ namespace Pharmacy.Controllers
 
             return Ok(medicine);
         }
-        #endregion
+		#endregion
 
 
-        #endregion
+		#endregion
 
-        #endregion
-    }
+		#region Search Medicines => api/Medicines/search
+		[HttpGet("search")]
+		public async Task<IEnumerable<MedicineDto>> SearchMedicines(string keyword)
+		{
+			
+
+			var medicines = await _medicineRepo.SearchMedicines(keyword);
+
+			return medicines.Select(m => new MedicineDto
+			{
+				Name = m.Name,
+				Description = m.Description,
+				Price = m.Price
+			});
+		}
+		#endregion
+
+		#region Filter Medicines by Category => api/Medicines/filter
+		[HttpGet("filter")]
+		public async Task<IActionResult> FilterMedicinesByCategory([FromQuery] string category)
+		{
+			var medicines = await _medicineRepo.FilterMedicinesByCategory(category);
+
+			if (medicines == null || !medicines.Any())
+			{
+				return NotFound("No medicines found for the specified category.");
+			}
+
+			var medicineDtos = medicines.Select(m => new MedicineDto
+			{
+				Name = m.Name,
+				Description = m.Description,
+				Price = m.Price
+			});
+
+			return Ok(medicineDtos);
+		}
+		#endregion
+		#endregion
+	}
 }

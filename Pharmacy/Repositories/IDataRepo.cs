@@ -8,6 +8,10 @@
         Task AddAsync( T entity );
         Task UpdateAsync( T entity );
         Task DeleteAsync( T entity );
+
         Task<bool> Save();
-    }
+
+		Task<IEnumerable<T>> SearchMedicines(string keyword);
+		Task<IEnumerable<T>> FilterMedicinesByCategory(string category);
+	}
 }
