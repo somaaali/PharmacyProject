@@ -22,6 +22,10 @@ namespace Pharmacy.Repositories
         public async Task<T> GetByIdAsync( int id )
         {
             return await _dbSet.FindAsync(id);
+        }   
+        public async Task<T> GetByNameAsync( string name )
+        {
+            return await _dbSet.FirstOrDefaultAsync(x => EF.Property<string>(x, "Name") == name);
         }
 
         public async Task AddAsync( T entity )
