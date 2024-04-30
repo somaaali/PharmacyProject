@@ -8,6 +8,7 @@ namespace Pharmacy.Context
 		}
 
 		public DbSet<Medicine> medicines { get; set; }
+		public DbSet<Request> requests { get; set; }
 
 		public DbSet<Category> Categories { get; set; }
 	}	
