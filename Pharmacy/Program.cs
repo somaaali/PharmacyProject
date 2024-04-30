@@ -1,6 +1,7 @@
 using Microsoft.IdentityModel.Tokens;
 using Pharmacy.Context;
 using Pharmacy.Models;
+using Pharmacy.Repositories;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +36,9 @@ builder.Services.Configure<IdentityOptions>(options =>
 	options.Password.RequireNonAlphanumeric = false;
 	options.SignIn.RequireConfirmedEmail = false;
 });
+
+// Add Repositories
+builder.Services.AddScoped(typeof(IDataRepo<>), typeof(DataRepo<>));
 
 
 // Add Authentication and JwtBearer
