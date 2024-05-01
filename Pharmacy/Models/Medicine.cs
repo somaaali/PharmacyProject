@@ -10,5 +10,8 @@
 		// one to many with category
 		public int CategoryId { get; set; } // FK
 		public Category Category { get; set; } // Navigation property
+
+		// many to many with request
+		public List<Request> Requests { get; set; }
 	}
 }
