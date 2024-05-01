@@ -51,17 +51,19 @@ namespace Pharmacy.Repositories
 
 		public async Task<IEnumerable<T>> SearchMedicines(string keyword)
 		{
-			// This method is specific to medicines. If DataRepo is generic for all entities,
-			// consider moving this method to a more specialized repository.
 			return await _dbSet.ToListAsync();
 		}
 
 		public async Task<IEnumerable<T>> FilterMedicinesByCategory(string category)
 		{
-			// This method is specific to medicines. If DataRepo is generic for all entities,
-			// consider moving this method to a more specialized repository.
+			
 			return await _dbSet.ToListAsync();
 		}
+		public async Task<IEnumerable<SearchHistory>> GetSearchHistoryByUserId(string userId)
+		{
+			return await _dbSet.Cast<SearchHistory>().Where(s => s.UserId == userId).ToListAsync();
+		}
+
 
 		#endregion
 

@@ -13,5 +13,7 @@
 
 		Task<IEnumerable<T>> SearchMedicines(string keyword);
 		Task<IEnumerable<T>> FilterMedicinesByCategory(string category);
+		Task<IEnumerable<SearchHistory>> GetSearchHistoryByUserId(string userId); // Add this method
+
 	}
 }
