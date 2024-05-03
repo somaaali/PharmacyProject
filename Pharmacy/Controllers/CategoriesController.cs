@@ -31,6 +31,8 @@ namespace Pharmacy.Controllers
         #endregion
 
         #region ViewCategoryById => api/Categories/{id}
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
+
         [HttpGet("{id}")]
         public async Task<IActionResult> ViewCategoryById( int id )
         {
@@ -46,6 +48,7 @@ namespace Pharmacy.Controllers
         #endregion
 
         #region AddCategory api/Categories
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpPost]
         public async Task<IActionResult> AddCategory( CategoryDto dto )
         {
@@ -61,6 +64,8 @@ namespace Pharmacy.Controllers
         #endregion
 
         #region UpdateCategoryById api/Categories/{id}
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCategoryById( int id, CategoryDto dto )
         {
@@ -82,6 +87,8 @@ namespace Pharmacy.Controllers
         #endregion
 
         #region DeleteCategoryById api/Categories/{id}
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategoryById( int id )
         {
@@ -120,6 +127,8 @@ namespace Pharmacy.Controllers
         #endregion
 
         #region UpdateCategoryByName api/Categories/name/{name}
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
+
         [HttpPut("name/{name}")]
         public async Task<IActionResult> UpdateAsync( string name, CategoryDto dto )
         {
@@ -135,6 +144,8 @@ namespace Pharmacy.Controllers
         #endregion
 
         #region DeleteCategoryByName api/Categories/name/{name}
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
+
         [HttpDelete("name/{name}")]
         public async Task<IActionResult> DeleteAsync( string name )
         {
