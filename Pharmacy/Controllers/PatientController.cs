@@ -19,7 +19,7 @@ namespace Pharmacy.Controllers
 			}
 
 			[HttpGet]
-			[Route("patients/{username}")]
+			[Route("{username}")]
 			public async Task<IActionResult> GetPatientByusername(string username)
 			{
 				var user = await _userManager.FindByNameAsync(username);
@@ -39,7 +39,6 @@ namespace Pharmacy.Controllers
 			}
 
 			[HttpGet]
-			[Route("patients")]
 			public async Task <IActionResult> GetAllPatients()
 			{
 
@@ -53,7 +52,6 @@ namespace Pharmacy.Controllers
 		}
 
 			[HttpDelete]
-			[Route("patients/{username}")]
 			public async Task<IActionResult> DeletePatient(string username)
 			{
 				var user = await _userManager.FindByNameAsync(username);

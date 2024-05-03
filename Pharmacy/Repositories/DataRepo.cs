@@ -13,6 +13,7 @@ namespace Pharmacy.Repositories
             _dbSet = _context.Set<T>();
         }
 
+        
         #region Crud
         public async Task<IEnumerable<T>> GetAllAsync()
         {
@@ -47,26 +48,31 @@ namespace Pharmacy.Repositories
         {
             return await _context.SaveChangesAsync() > 0;
         }
-		#region Additional Operations
-
-		public async Task<IEnumerable<T>> SearchMedicines(string keyword)
-		{
-			return await _dbSet.ToListAsync();
-		}
-
-		public async Task<IEnumerable<T>> FilterMedicinesByCategory(string category)
-		{
-			
-			return await _dbSet.ToListAsync();
-		}
-		public async Task<IEnumerable<SearchHistory>> GetSearchHistoryByUserId(string userId)
-		{
-			return await _dbSet.Cast<SearchHistory>().Where(s => s.UserId == userId).ToListAsync();
-		}
 
 
-		#endregion
+        #endregion
 
-		#endregion
-	}
+        #region Additional Operations
+
+        public async Task<IEnumerable<T>> SearchMedicines( string keyword )
+        {
+            return await _dbSet.ToListAsync();
+        }
+
+        public async Task<IEnumerable<T>> FilterMedicinesByCategory( string category )
+        {
+
+            return await _dbSet.ToListAsync();
+        }
+
+        public async Task<IEnumerable<SearchHistory>> GetSearchHistoryByUserId( string userId )
+        {
+            return await _dbSet.Cast<SearchHistory>().Where(s => s.UserId == userId).ToListAsync();
+        }
+
+
+        #endregion
+
+
+    }
 }

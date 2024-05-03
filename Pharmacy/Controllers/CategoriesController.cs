@@ -4,7 +4,7 @@ namespace Pharmacy.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = StaticUserRoles.ADMIN)]
+    [Authorize(Roles = StaticUserRoles.ADMIN + "," + StaticUserRoles.PATIENT)]
     public class CategoriesController : ControllerBase
     {
         private readonly IDataRepo<Category> _categoryRepo;
@@ -18,6 +18,7 @@ namespace Pharmacy.Controllers
 
         #region ViewCategories => api/Categories
         [HttpGet]
+        [Authorize(Roles = StaticUserRoles.PATIENT)]
         public async Task<IActionResult> GetAllAsync()
         {
             var categories = await _categoryRepo.GetAllAsync();
@@ -102,6 +103,8 @@ namespace Pharmacy.Controllers
 
         #region ViewCategoriesByName => api/Categories/name/{name}
         [HttpGet("name/{name}")]
+        [Authorize(Roles = StaticUserRoles.PATIENT)]
+
         public async Task<IActionResult> GetByName( string name )
         {
             var category = await _categoryRepo.GetByNameAsync(name);

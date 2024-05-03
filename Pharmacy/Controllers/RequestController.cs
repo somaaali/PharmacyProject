@@ -14,9 +14,9 @@ namespace Pharmacy.Controllers
 		private readonly UserManager<ApplicationUser> _userManager;
 
 
-		
 
-		public RequestController(PharmacyDbContext context, UserManager<ApplicationUser> userManager)
+
+		public RequestController( PharmacyDbContext context, UserManager<ApplicationUser> userManager )
 		{
 			_context = context;
 			_userManager = userManager;
@@ -24,40 +24,56 @@ namespace Pharmacy.Controllers
 		}
 
 
-		#region ENDPOINTS
+        #region ENDPOINTS
 
-		#region Get Pending Requests
-		[HttpGet("requests/pending")]
-		public async Task<IActionResult> GetPendingRequests()
-		{
-			var pendingRequests = await _context.requests
-				.Where(r => r.Status == RequestStatus.Pending)
-				.ToListAsync();
+        #region Get Pending Requests
+        [HttpGet]
+        public async Task<IActionResult> GetPendingRequests()
+        {
+            // Retrieve pending requests from the database
+            var pendingRequests = await _context.requests
+                .Where(r => r.Status == RequestStatus.Pending)
+                .Include(r => r.Medicines) // Include medicines in the query
+                .ToListAsync();
 
-			var requestDtos = new List<RequestDto>();
-			foreach (var request in pendingRequests)
-			{
-				var patient = await _userManager.FindByIdAsync(request.UserId);
-				var patientName = patient.UserName;
-				var medicinesNames = request.Medicines.Select(m => m.Name).ToList();
+            // Check if there are pending requests
+            if ( pendingRequests == null || pendingRequests.Count == 0 )
+                return NotFound("No pending requests found.");
 
-				var requestDto = new RequestDto
-				{
-					PatientName = patientName,
-					MedicinesNames = medicinesNames,
+            // Create a list to store RequestDto objects
+            var requestDtos = new List<RequestDto>();
 
-				};
+            // Iterate through each pending request and create a RequestDto object
+            foreach ( var request in pendingRequests )
+            {
+                // Find the patient associated with the request
+                var patient = await _userManager.FindByIdAsync(request.UserId);
+                if ( patient == null )
+                {
+                    // Log or handle the case where patient is null
+                    continue; // Skip this request and move to the next one
+                }
 
-				requestDtos.Add(requestDto);
-			}
+                // Create a RequestDto object and populate its properties
+                var requestDto = new RequestDto
+                {
+                    PatientName = patient.UserName,
+                    MedicinesNames = request.Medicines.Select(m => m.Name).ToList(),
+                };
 
-			return Ok(requestDtos);
-		}
-		#endregion
+                // Add the RequestDto object to the list
+                requestDtos.Add(requestDto);
+            }
 
-		#region Get Requests By Patient Username
-		[HttpGet("requests/patient/{username}")]
-		public async Task<IActionResult> GetRequestsByPatientUsername(string username)
+            // Return the list of RequestDto objects
+            return Ok(requestDtos);
+        }
+        #endregion
+
+        #region Get Requests By Patient Username
+        [HttpGet("{username}")]
+
+        public async Task<IActionResult> GetRequestsByPatientUsername(string username)
 		{
 			// Find the user by username
 			var user = await _userManager.FindByNameAsync(username);
@@ -122,7 +138,7 @@ namespace Pharmacy.Controllers
 
 		#region Add Request
 
-		[HttpPost("requests")]
+		[HttpPost]
 		public async Task<IActionResult> PostRequest([FromBody] RequestDto requestDto)
 		{
 			if (!ModelState.IsValid)

@@ -1,5 +1,3 @@
-
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -17,13 +15,11 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<PharmacyDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-
 // Add Identity
 builder.Services
     .AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<PharmacyDbContext>()
     .AddDefaultTokenProviders();
-
 
 // Config Identity
 builder.Services.Configure<IdentityOptions>(options =>
@@ -38,7 +34,6 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 // Add Repositories
 builder.Services.AddScoped(typeof(IDataRepo<>), typeof(DataRepo<>));
-
 
 // Add Authentication and JwtBearer
 builder.Services
@@ -63,8 +58,15 @@ builder.Services
         };
     });
 
-
 var app = builder.Build();
+
+// Configure CORS
+app.UseCors(options =>
+{
+    options.AllowAnyOrigin()
+           .AllowAnyMethod()
+           .AllowAnyHeader();
+});
 
 // Configure the HTTP request pipeline.
 if ( app.Environment.IsDevelopment() )

@@ -20,7 +20,9 @@ namespace Pharmacy.Controllers
 			_searchHistoryRepo = searchHistoryRepo;
 			_categoryRepo = categoryRepo;
 		}
-		[HttpPost("capture")]
+
+
+		[HttpPost]
 		public async Task<IActionResult> CaptureSearchHistory(string searchQuery)
 		{
 			// Get the current user's ID
@@ -40,11 +42,11 @@ namespace Pharmacy.Controllers
 			await _searchHistoryRepo.AddAsync(searchHistoryRecord);
 			await _searchHistoryRepo.Save();
 
-			return Ok(); // Return 200 OK if the operation is successful
+			return Ok(); 
 		}
 
 		// Retrieve current user's search history
-		[HttpGet("user")]
+		[HttpGet]
 		public async Task<IActionResult> GetUserSearchHistory()
 		{
 			// Get the current user's ID

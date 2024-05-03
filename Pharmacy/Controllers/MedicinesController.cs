@@ -1,18 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pharmacy.Repositories;
+using System.ComponentModel.DataAnnotations;
 
 namespace Pharmacy.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = StaticUserRoles.ADMIN)]
+    [Authorize(Roles = StaticUserRoles.ADMIN + "," + StaticUserRoles.PATIENT)]
     public class MedicinesController : ControllerBase
     {
         private readonly IDataRepo<Medicine> _medicineRepo;
         private readonly IDataRepo<Category> _categoryRepo;
 
         public MedicinesController(
-            IDataRepo<Medicine> medicineRepo ,
+            IDataRepo<Medicine> medicineRepo,
             IDataRepo<Category> categoryRepo
             )
         {
@@ -34,6 +35,7 @@ namespace Pharmacy.Controllers
         #endregion
 
         #region ViewMedicineById => api/Medicines/{id}
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpGet("id/{id}")]
         public async Task<IActionResult> GetMedicineById( int id )
         {
@@ -48,6 +50,7 @@ namespace Pharmacy.Controllers
         #endregion
 
         #region AddMedicine api/Medicines
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpPost]
         public async Task<IActionResult> AddMedicine( MedicineDto dto )
         {
@@ -73,8 +76,10 @@ namespace Pharmacy.Controllers
         }
 
         #endregion
- 
+
         #region UpdateMedicine api/Medicines/{id}
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMedicine( int id, MedicineDto dto )
         {
@@ -101,6 +106,7 @@ namespace Pharmacy.Controllers
         #endregion
 
         #region DeleteMedicine api/Medicines/{id}
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMedicine( int id )
         {
@@ -133,6 +139,7 @@ namespace Pharmacy.Controllers
         #endregion
 
         #region UpdateMedicineByName => PUT api/Medicines/name/{name}
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpPut("name/{name}")]
         public async Task<IActionResult> UpdateMedicineByName( string name, MedicineDto dto )
         {
@@ -159,6 +166,7 @@ namespace Pharmacy.Controllers
 
         #region DeleteMedicineByName => DELETE api/Medicines/name/{name}
         [HttpDelete("name/{name}")]
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
         public async Task<IActionResult> DeleteMedicineByName( string name )
         {
             var medicine = await _medicineRepo.GetByNameAsync(name);
@@ -213,6 +221,7 @@ namespace Pharmacy.Controllers
 			return Ok(medicineDtos);
 		}
 		#endregion
+
 		#endregion
 	}
 }
