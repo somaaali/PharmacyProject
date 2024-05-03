@@ -134,7 +134,7 @@ namespace Pharmacy.Controllers
         {
             var category = await _categoryRepo.GetByNameAsync(name);
             if ( category == null )
-                return NotFound($"No Category Was Found With ID {name}");
+                return NotFound($"No Category Was Found Named {name}");
 
             category.Name = dto.Name;
             await _categoryRepo.UpdateAsync(category);
@@ -151,7 +151,7 @@ namespace Pharmacy.Controllers
         {
             var category = await _categoryRepo.GetByNameAsync(name);
             if ( category == null )
-                return NotFound($"No Category Was Found With ID {name}");
+                return NotFound($"No Category Was Found Named {name}");
 
             await _categoryRepo.DeleteAsync(category);
             await _categoryRepo.Save();
