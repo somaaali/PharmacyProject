@@ -1,9 +1,5 @@
 ﻿
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 using System.Linq.Expressions;
 
 namespace Pharmacy.Repositories
