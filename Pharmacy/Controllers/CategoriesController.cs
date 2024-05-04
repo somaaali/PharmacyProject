@@ -30,8 +30,6 @@ namespace Pharmacy.Controllers
         #endregion
 
         #region ViewCategoryById => api/Categories/{id}
-        [Authorize(Roles = StaticUserRoles.ADMIN)]
-
         [HttpGet("{id}")]
         public async Task<IActionResult> ViewCategoryById( int id )
         {
