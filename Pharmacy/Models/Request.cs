@@ -14,7 +14,7 @@
 			public RequestStatus Status { get; set; }
 
 		// one to many with patient
-		public string? UserId { get; set; } // Foreign key to User/Identity
+		public string UserId { get; set; } // Foreign key to User/Identity
 		public ApplicationUser User { get; set; } // Navigation property
 
 		// many to many with medicine

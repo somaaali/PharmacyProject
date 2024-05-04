@@ -1,5 +1,7 @@
 ﻿
 
+using Microsoft.AspNetCore.Authentication;
+
 namespace Pharmacy.Controllers
 {
 	[Route("api/[controller]")]
@@ -101,36 +103,40 @@ namespace Pharmacy.Controllers
 			if (user is null)
 				return Unauthorized("Invalid Credentials");
 
-
 			var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, loginDto.Password);
 
 			if (!isPasswordCorrect)
 				return Unauthorized("Invalid Credentials");
 
-
 			var userRoles = await _userManager.GetRolesAsync(user);
-
 			var authClaims = new List<Claim>
-			{
-				new Claim(ClaimTypes.Name, user.UserName),
-				new Claim(ClaimTypes.NameIdentifier, user.Id),
-				new Claim("JWTID", Guid.NewGuid().ToString()),
-				new Claim("FirstName", user.FirstName),
-				new Claim("LastName", user.LastName),
-				new Claim("Addres", user.Address),
-				new Claim("Phone", user.Phone),
-			};
+	{
+		new Claim(ClaimTypes.Name, user.UserName),
+		new Claim(ClaimTypes.NameIdentifier, user.Id),
+		new Claim("JWTID", Guid.NewGuid().ToString()),
+		new Claim("FirstName", user.FirstName),
+		new Claim("LastName", user.LastName),
+		new Claim("Addres", user.Address),
+		new Claim("Phone", user.Phone),
+	};
 
+			// Add role ID to claims
 			foreach (var userRole in userRoles)
 			{
 				authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+				var role = await _roleManager.FindByNameAsync(userRole);
+				if (role != null)
+				{
+					authClaims.Add(new Claim("RoleId", role.Id)); // Add RoleId claim
+				}
 			}
 
 			var token = GenerateNewJsonWebToken(authClaims);
 
-			return Ok(token);
-
+			return Ok(new { Token = token, Roles = userRoles }); // Return token and roles
 		}
+
+
 		private string GenerateNewJsonWebToken(List<Claim> claims)
 		{
 			var authSecret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
