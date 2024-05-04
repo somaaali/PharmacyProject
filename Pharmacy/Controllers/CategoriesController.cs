@@ -4,7 +4,7 @@ namespace Pharmacy.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = StaticUserRoles.ADMIN + "," + StaticUserRoles.PATIENT)]
+    //[Authorize(Roles = StaticUserRoles.ADMIN + "," + StaticUserRoles.PATIENT)]
     public class CategoriesController : ControllerBase
     {
         private readonly IDataRepo<Category> _categoryRepo;

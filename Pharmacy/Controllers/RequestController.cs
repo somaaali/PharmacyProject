@@ -27,6 +27,7 @@ namespace Pharmacy.Controllers
         #region ENDPOINTS
 
         #region Get Pending Requests
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpGet]
         public async Task<IActionResult> GetPendingRequests()
         {
@@ -71,6 +72,7 @@ namespace Pharmacy.Controllers
         #endregion
 
         #region Get Requests By Patient Username
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpGet("{username}")]
 
         public async Task<IActionResult> GetRequestsByPatientUsername(string username)
@@ -82,7 +84,7 @@ namespace Pharmacy.Controllers
 
 			// Retrieve requests associated with the user
 			var requests = await _context.requests
-				.Include(r => r.Medicines) // Include medicines in the query
+				.Include(r => r.Medicines) 
 				.Where(r => r.UserId == user.Id)
 				.ToListAsync();
 
@@ -110,18 +112,18 @@ namespace Pharmacy.Controllers
 			// Return the list of RequestDto objects
 			return Ok(requestDtos);
 		}
-		#endregion
+        #endregion
 
-		#region Update Requests Statue
-
-		[HttpPut("{id}")]
+        #region Update Requests Statue
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
+        [HttpPut("{id}")]
 		public async Task<IActionResult> UpdateRequestStatus(int id, [FromBody] string status)
 		{
 			// Find the request by id
 			var request = await _context.requests.FindAsync(id);
 
 			if (request == null)
-				return NotFound(); // Request not found
+				return NotFound();
 
 			// Validate the status string
 			if (!Enum.TryParse(status, true, out RequestStatus requestStatus))
@@ -156,9 +158,8 @@ namespace Pharmacy.Controllers
 			// Create a new Request entity
 			var newRequest = new Request
 			{
-				UserId = currentUser.Id, // Assuming you have a UserId property in your Request entity
-				Status = RequestStatus.Pending, // Assuming default status is pending
-												// Assuming MedicinesNames correspond to existing Medicine entities
+				UserId = currentUser.Id, 
+				Status = RequestStatus.Pending, 												
 				Medicines = await _context.medicines
 					.Where(m => requestDto.MedicinesNames.Contains(m.Name))
 					.ToListAsync()
@@ -168,19 +169,19 @@ namespace Pharmacy.Controllers
 			_context.requests.Add(newRequest);
 			await _context.SaveChangesAsync();
 
-			// Return the newly created request
-			var requestDtoResponse = new RequestDto
-			{
-				PatientName = currentUser.UserName,
-				MedicinesNames = newRequest.Medicines.Select(m => m.Name).ToList(),
-				Status = newRequest.Status
-			};
+            // Return the newly created request
+            var requestDtoResponse = new RequestDto
+            {
+                PatientName = currentUser.UserName,
+                MedicinesNames = newRequest.Medicines.Select(m => m.Name).ToList(),
+            };
 
-			return CreatedAtAction(nameof(GetRequestsByPatientUsername), new { username = currentUser.UserName }, requestDtoResponse);
-		}
-		#endregion
+            return CreatedAtAction(nameof(GetRequestsByPatientUsername), new { username = currentUser.UserName }, requestDtoResponse);
+        }
+
+        #endregion
 
 
-		#endregion
-	}
+        #endregion
+    }
 }

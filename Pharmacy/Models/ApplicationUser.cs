@@ -4,9 +4,9 @@
 	{
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
+		[EmailAddress]
 		public string Address { get; set; }
-
+		[Phone]
 		public string Phone { get; set; }
-		// public string Role { get; set; }
 	}
 }
