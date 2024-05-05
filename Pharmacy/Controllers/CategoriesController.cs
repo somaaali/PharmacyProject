@@ -21,9 +21,10 @@ namespace Pharmacy.Controllers
         public async Task<IActionResult> GetAllAsync()
         {
             var categories = await _categoryRepo.GetAllAsync();
-            var categoryDtos = categories.Select(c => new CategoryDto
+            var categoryDtos = categories.Select(c => new ViewCategoryDto
             {
-                Name = c.Name,
+                CategoryId=c.CategoryId,
+				Name = c.Name,
             }).ToList();
             return Ok(categoryDtos);
         }
