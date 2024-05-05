@@ -141,7 +141,7 @@ namespace Pharmacy.Controllers
 		#region Add Request
 
 		[HttpPost]
-		public async Task<IActionResult> PostRequest([FromBody] RequestDto requestDto)
+		public async Task<IActionResult> PostRequest([FromBody] AddRequestDto requestDto)
 		{
 			if (!ModelState.IsValid)
 			{
