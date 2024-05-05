@@ -90,12 +90,12 @@ namespace Pharmacy.Controllers
 
         #region UpdateMedicine api/Medicines/{id}
         [Authorize(Roles = StaticUserRoles.ADMIN)]
-
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMedicine( int id, MedicineDto dto )
+        public async Task<IActionResult> UpdateMedicine( int id, [FromForm] UpdateMedicineDto dto )
         {
             var medicine = await _medicineRepo.GetByIdAsync(id);
 
+            #region validations
             // validate if the Medicine id is not found
             if ( medicine == null )
                 return NotFound($"No Medicine Found with Id {id}");
@@ -104,6 +104,24 @@ namespace Pharmacy.Controllers
             var isValidCategory = await _categoryRepo.GetByIdAsync(dto.CategoryId) != null;
             if ( !isValidCategory ) return BadRequest($"Invalid Category No Category with Id {dto.CategoryId}");
 
+            // handling image upload
+            if ( dto.Image != null )
+            {
+                // validate the image size
+                if ( !_allowedExtensions.Contains(Path.GetExtension(dto.Image.FileName).ToLower()) )
+                    return BadRequest("Invalid Image Format, Only .jpg and .png are allowed");
+
+                // validate the image size
+                if ( dto.Image.Length > _maxAllowedImageSize )
+                    return BadRequest("Image size is too large, Maximum allowed size is 5MB");
+
+                // to store the image in the database we need to convert it to byte array
+                using var dataStream = new MemoryStream();
+                await dto.Image.CopyToAsync(dataStream);
+
+                medicine.Image = dataStream.ToArray();
+            }
+            #endregion
 
             medicine.Name = dto.Name;
             medicine.Description = dto.Description;
@@ -152,16 +170,34 @@ namespace Pharmacy.Controllers
         #region UpdateMedicineByName => PUT api/Medicines/name/{name}
         [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpPut("name/{name}")]
-        public async Task<IActionResult> UpdateMedicineByName( string name, MedicineDto dto )
+        public async Task<IActionResult> UpdateMedicineByName( string name, [FromForm] UpdateMedicineDto dto )
         {
             var medicine = await _medicineRepo.GetByNameAsync(name);
             if ( medicine == null )
                 return NotFound($"No Medicine Named {name}");
 
-            // validate the entered category id 
+            // validate the entered category id
             var isValidCategory = await _categoryRepo.GetByIdAsync(dto.CategoryId) != null;
             if ( !isValidCategory )
                 return BadRequest($"Invalid Category No Category with Id {dto.CategoryId}");
+
+            // handling image upload
+            if ( dto.Image != null )
+            {
+                // validate the image size
+                if ( !_allowedExtensions.Contains(Path.GetExtension(dto.Image.FileName).ToLower()) )
+                    return BadRequest("Invalid Image Format, Only .jpg and .png are allowed");
+
+                // validate the image size
+                if ( dto.Image.Length > _maxAllowedImageSize )
+                    return BadRequest("Image size is too large, Maximum allowed size is 5MB");
+
+                // to store the image in the database we need to convert it to byte array
+                using var dataStream = new MemoryStream();
+                await dto.Image.CopyToAsync(dataStream);
+
+                medicine.Image = dataStream.ToArray();
+            }
 
             medicine.Name = dto.Name;
             medicine.Description = dto.Description;
