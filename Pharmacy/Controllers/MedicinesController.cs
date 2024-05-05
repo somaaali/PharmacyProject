@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pharmacy.Helpers;
 using Pharmacy.Repositories;
 using System.ComponentModel.DataAnnotations;
 
@@ -30,8 +31,13 @@ namespace Pharmacy.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewMedicines()
         {
-            var medicines = await _medicineRepo.GetAllAsync();
-            return Ok(medicines);
+			var baseUrl = "https://localhost:7285/";
+			var medicines = await _medicineRepo.GetAllAsync();
+			foreach (var medicine in medicines)
+			{
+				medicine.MedicineImagePath = baseUrl + medicine.MedicineImagePath;
+			}
+			return Ok(medicines);
         }
         #endregion
 
@@ -54,34 +60,38 @@ namespace Pharmacy.Controllers
         [HttpPost]
         public async Task<IActionResult> AddMedicine([FromForm] MedicineDto dto )
         {
-     
-            var isValidCategory = await _categoryRepo.GetByIdAsync(dto.CategoryId) != null;
-            if ( !isValidCategory ) return BadRequest($"Invalid CategoryId , No Category with Id {dto.CategoryId}");
-
-
-            // handling image upload 
-            // validate the image size
-            if(!_allowedExtensions.Contains(Path.GetExtension(dto.Image.FileName).ToLower()))
-                return BadRequest("Invalid Image Format, Only .jpg and .png are allowed");
-            // validate the image size
-            if ( dto.Image.Length > _maxAllowedImageSize )
-                return BadRequest("Image size is too large, Maximum allowed size is 5MB");
-
-            // to store the image in the database we need to convert it to byte array
-            using var dataStream = new MemoryStream();
-            await dto.Image.CopyToAsync(dataStream);
-
+			if (dto == null)
+			{
+				return BadRequest();
+			}
 
             var medicine = new Medicine
             {
                 Name = dto.Name,
                 Description = dto.Description,
                 Price = dto.Price,
-                Image = dataStream.ToArray(),
                 CategoryId = dto.CategoryId,
             };
+			if (dto.Image != null)
+			{
+				var result = UploadHandler.Upload(dto.Image, "medicines");
+				if (!string.IsNullOrEmpty(result.ErrorMessage))
+				{
+					return BadRequest(new
+					{
+						message = result.ErrorMessage
+					});
+				}
 
-            await _medicineRepo.AddAsync(medicine);
+				medicine.MedicineImagePath = result.FileName;
+
+				await _medicineRepo.AddAsync(medicine);
+				await _medicineRepo.Save();
+
+				return Ok(medicine);
+			}
+
+			await _medicineRepo.AddAsync(medicine);
             await _medicineRepo.Save();
             return Ok(medicine);
         }
@@ -105,22 +115,8 @@ namespace Pharmacy.Controllers
             if ( !isValidCategory ) return BadRequest($"Invalid Category No Category with Id {dto.CategoryId}");
 
             // handling image upload
-            if ( dto.Image != null )
-            {
-                // validate the image size
-                if ( !_allowedExtensions.Contains(Path.GetExtension(dto.Image.FileName).ToLower()) )
-                    return BadRequest("Invalid Image Format, Only .jpg and .png are allowed");
-
-                // validate the image size
-                if ( dto.Image.Length > _maxAllowedImageSize )
-                    return BadRequest("Image size is too large, Maximum allowed size is 5MB");
-
-                // to store the image in the database we need to convert it to byte array
-                using var dataStream = new MemoryStream();
-                await dto.Image.CopyToAsync(dataStream);
-
-                medicine.Image = dataStream.ToArray();
-            }
+          
+            
             #endregion
 
             medicine.Name = dto.Name;
@@ -182,22 +178,7 @@ namespace Pharmacy.Controllers
                 return BadRequest($"Invalid Category No Category with Id {dto.CategoryId}");
 
             // handling image upload
-            if ( dto.Image != null )
-            {
-                // validate the image size
-                if ( !_allowedExtensions.Contains(Path.GetExtension(dto.Image.FileName).ToLower()) )
-                    return BadRequest("Invalid Image Format, Only .jpg and .png are allowed");
-
-                // validate the image size
-                if ( dto.Image.Length > _maxAllowedImageSize )
-                    return BadRequest("Image size is too large, Maximum allowed size is 5MB");
-
-                // to store the image in the database we need to convert it to byte array
-                using var dataStream = new MemoryStream();
-                await dto.Image.CopyToAsync(dataStream);
-
-                medicine.Image = dataStream.ToArray();
-            }
+          
 
             medicine.Name = dto.Name;
             medicine.Description = dto.Description;
