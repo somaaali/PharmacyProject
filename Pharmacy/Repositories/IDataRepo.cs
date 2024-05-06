@@ -12,7 +12,7 @@ namespace Pharmacy.Repositories
 
         Task<bool> Save();
 
-		Task<IEnumerable<T>> SearchMedicines(string keyword);
+		Task<IEnumerable<T>> FilterMedicines( string keyword);
 		Task<IEnumerable<T>> FilterMedicinesByCategory(string category);
 		Task<IEnumerable<SearchHistory>> GetSearchHistoryByUserId(string userId); // Add this method
 

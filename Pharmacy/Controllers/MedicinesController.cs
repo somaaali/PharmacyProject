@@ -233,13 +233,13 @@ namespace Pharmacy.Controllers
 
         #endregion
 
-        #region Search Medicines => api/Medicines/search
-        [HttpGet("search")]
-        public async Task<IEnumerable<MedicineDto>> SearchMedicines( string keyword )
+        #region Filtre Medicines => api/Medicines/Filter
+        [HttpGet("Filter")]
+        public async Task<IEnumerable<MedicineDto>> FilterMedicines( string keyword )
         {
 
 
-            var medicines = await _medicineRepo.SearchMedicines(keyword);
+            var medicines = await _medicineRepo.FilterMedicines(keyword);
 
             return medicines.Select(m => new MedicineDto
             {
@@ -250,8 +250,8 @@ namespace Pharmacy.Controllers
         }
         #endregion
 
-        #region Filter Medicines by Category => api/Medicines/filter
-        [HttpGet("filter")]
+        #region Filter Medicines by Category => api/Medicines/FilterCategory
+        [HttpGet("FilterCategory")]
         public async Task<IActionResult> FilterMedicinesByCategory( [FromQuery] string category )
         {
             var medicines = await _medicineRepo.FilterMedicinesByCategory(category);

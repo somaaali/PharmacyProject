@@ -53,7 +53,7 @@ namespace Pharmacy.Repositories
 		#region Additional Operations
 
 		// Update the DataRepo<T> class implementation
-		public async Task<IEnumerable<T>> SearchMedicines(string keyword)
+		public async Task<IEnumerable<T>> FilterMedicines( string keyword)
 		{
 			// Ensure that T is a type that has a Name property
 			var nameProperty = typeof(T).GetProperty("Name");
@@ -62,14 +62,10 @@ namespace Pharmacy.Repositories
 				throw new InvalidOperationException("Type T does not have a Name property.");
 			}
 
-			// Create an expression parameter for the entity
 			var parameter = Expression.Parameter(typeof(T), "entity");
-			// Create an expression to access the Name property
 			var nameExpression = Expression.Property(parameter, nameProperty);
-			// Create an expression to call Contains method on Name property
 			var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
 			var containsExpression = Expression.Call(nameExpression, containsMethod, Expression.Constant(keyword));
-			// Create an expression to represent the lambda function
 			var lambda = Expression.Lambda<Func<T, bool>>(containsExpression, parameter);
 
 			// Apply the filter to the query
@@ -94,19 +90,14 @@ namespace Pharmacy.Repositories
 			}
 			else
 			{
-				// Get the Category property dynamically
 				var categoryProperty = typeof(T).GetProperty("Category");
-				// Create an expression parameter for the entity
 				var parameter = Expression.Parameter(typeof(T), "entity");
-				// Create an expression to access the Category property
 				var categoryExpression = Expression.Property(parameter, categoryProperty);
-				// Create an expression to access the Name property of Category
 				var nameProperty = typeof(Category).GetProperty("Name");
 				var nameExpression = Expression.Property(categoryExpression, nameProperty);
-				// Create an expression to compare the Name property with the provided category
 				var filterExpression = Expression.Equal(nameExpression, Expression.Constant(category));
-				// Combine all expressions into a lambda expression
 				var lambda = Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
+
 				// Apply the filter to the query
 				query = query.Where(lambda);
 			}
