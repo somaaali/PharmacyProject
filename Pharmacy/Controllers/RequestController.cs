@@ -107,69 +107,67 @@ namespace Pharmacy.Controllers
         #region Update Requests Statue
         [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpPut("{id}")]
-		public async Task<IActionResult> UpdateRequestStatus(int id, [FromBody] string status)
-		{
-			// Find the request by id
-			var request = await _context.requests.FindAsync(id);
+        public async Task<IActionResult> UpdateRequestStatus( int id, [FromBody] StatusUpdateDto statusUpdate )
+        {
+            // Find the request by id
+            var request = await _context.requests.FindAsync(id);
 
-			if (request == null)
-				return NotFound();
+            if ( request == null )
+                return NotFound();
 
-			// Validate the status string
-			if (!Enum.TryParse(status, true, out RequestStatus requestStatus))
-				return BadRequest("Invalid status value.");
+            // Validate the status string
+            if ( !Enum.TryParse(statusUpdate.Status, true, out RequestStatus requestStatus) )
+                return BadRequest("Invalid status value.");
 
-			// Update request status
-			request.Status = requestStatus;
-			_context.SaveChanges();
+            // Update request status
+            request.Status = requestStatus;
+            _context.SaveChanges();
 
-			return Ok(request);
-		}
+            return Ok(request);
+        }
+        #endregion
 
-		#endregion
+        #region Add Request
 
-		#region Add Request
+        [HttpPost]
+        public async Task<IActionResult> PostRequest( [FromBody] AddRequestDto requestDto )
+        {
+            if ( !ModelState.IsValid )
+            {
+                return BadRequest(ModelState);
+            }
 
-		[HttpPost]
-		public async Task<IActionResult> PostRequest([FromBody] AddRequestDto requestDto)
-		{
-			if (!ModelState.IsValid)
-			{
-				return BadRequest(ModelState);
-			}
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if ( currentUser == null )
+            {
+                return Unauthorized();
+            }
 
-			// Assuming you have logic to retrieve the current user
-			var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-			if (currentUser == null)
-			{
-				return Unauthorized();
-			}
+            var newRequest = new Request
+            {
+                UserId = currentUser.Id,
+                Status = RequestStatus.Pending,
+                Medicines = await _context.medicines
+                    .Where(m => requestDto.MedicinesNames.Contains(m.Name))
+                    .ToListAsync()
+            };
 
-			// Create a new Request entity
-			var newRequest = new Request
-			{
-				UserId = currentUser.Id, 
-				Status = RequestStatus.Pending, 												
-				Medicines = await _context.medicines
-					.Where(m => requestDto.MedicinesNames.Contains(m.Name))
-					.ToListAsync()
-			};
+            _context.requests.Add(newRequest);
+            await _context.SaveChangesAsync();
 
-			// Add the new request to the database
-			_context.requests.Add(newRequest);
-			await _context.SaveChangesAsync();
-
-            // Return the newly created request
             var requestDtoResponse = new RequestDto
             {
+                RequestId = newRequest.Id, 
                 PatientName = currentUser.UserName,
                 MedicinesNames = newRequest.Medicines.Select(m => m.Name).ToList(),
+                Status = newRequest.Status
             };
 
             return CreatedAtAction(nameof(GetRequestsByPatientUsername), new { username = currentUser.UserName }, requestDtoResponse);
         }
 
         #endregion
+
 
 
         #endregion
