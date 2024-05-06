@@ -61,6 +61,45 @@ namespace Pharmacy.Controllers
         }
         #endregion
 
+        #region Get Pending Requests
+        [Authorize(Roles = StaticUserRoles.ADMIN)]
+        [HttpGet("pending")]
+        public async Task<IActionResult> GetPendingRequests()
+        {
+            var pendingRequests = await _context.requests
+                .Where(r => r.Status == RequestStatus.Pending)
+                .Include(r => r.Medicines)
+                .ToListAsync();
+
+            if ( pendingRequests == null || pendingRequests.Count == 0 )
+                return NotFound("No pending requests found.");
+
+            var requestDtos = new List<RequestDto>();
+
+            foreach ( var request in pendingRequests )
+            {
+                var patient = await _userManager.FindByIdAsync(request.UserId);
+                if ( patient == null )
+                {
+                    continue;
+                }
+
+                var requestDto = new RequestDto
+                {
+                    RequestId = request.Id, // Assign the correct request ID
+                    PatientName = patient.UserName,
+                    MedicinesNames = request.Medicines.Select(m => m.Name).ToList(),
+                    Status = request.Status // Include the status
+                };
+
+                requestDtos.Add(requestDto);
+            }
+
+            return Ok(requestDtos);
+        }
+        #endregion
+
+
         #region Get Requests By Patient Username
         [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpGet("{username}")]
