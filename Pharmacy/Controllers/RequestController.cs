@@ -47,6 +47,7 @@ namespace Pharmacy.Controllers
 
                 var requestDto = new RequestDto
                 {
+					RequestId = request.Id,
                     PatientName = patient.UserName,
                     MedicinesNames = request.Medicines.Select(m => m.Name).ToList(),
                     Status = request.Status
