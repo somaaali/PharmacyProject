@@ -1,7 +1,4 @@
 ﻿
-
-using System.Linq.Expressions;
-
 namespace Pharmacy.Repositories
 {
     public class DataRepo<T> : IDataRepo<T> where T : class

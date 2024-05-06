@@ -1,7 +1,4 @@
 ﻿
-
-using Microsoft.AspNetCore.Authentication;
-
 namespace Pharmacy.Controllers
 {
 	[Route("api/[controller]")]

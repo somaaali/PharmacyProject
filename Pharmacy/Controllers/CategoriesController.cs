@@ -1,5 +1,4 @@
-﻿using Pharmacy.Repositories;
-
+﻿
 namespace Pharmacy.Controllers
 {
     [Route("api/[controller]")]

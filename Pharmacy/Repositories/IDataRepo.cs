@@ -1,4 +1,5 @@
-﻿namespace Pharmacy.Repositories
+﻿
+namespace Pharmacy.Repositories
 {
     public interface IDataRepo<T> where T : class
     {

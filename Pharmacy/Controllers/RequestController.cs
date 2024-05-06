@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Pharmacy.Models;
-
+﻿
 namespace Pharmacy.Controllers
 {
 	[Route("api/[controller]")]

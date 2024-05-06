@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Pharmacy.Helpers;
-using Pharmacy.Repositories;
-using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace Pharmacy.Controllers
 {
     [Route("api/[controller]")]
@@ -20,8 +16,8 @@ namespace Pharmacy.Controllers
             _medicineRepo = medicineRepo;
             _categoryRepo = categoryRepo;
         }
-        private new List<string> _allowedExtensions = new List<string> { ".jpg", ".png" };
-        private long _maxAllowedImageSize = 1024 * 1024 * 5; // 5 MB
+        //private new List<string> _allowedExtensions = new List<string> { ".jpg", ".png" };
+        //private long _maxAllowedImageSize = 1024 * 1024 * 5; // 5 MB
 
         #region ENDPOINTS
 
@@ -31,13 +27,8 @@ namespace Pharmacy.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewMedicines()
         {
-			var baseUrl = "https://localhost:7285/";
-			var medicines = await _medicineRepo.GetAllAsync();
-			foreach (var medicine in medicines)
-			{
-				medicine.MedicineImagePath = baseUrl + medicine.MedicineImagePath;
-			}
-			return Ok(medicines);
+            var medicines = await _medicineRepo.GetAllAsync();
+            return Ok(medicines);
         }
         #endregion
 
@@ -58,40 +49,38 @@ namespace Pharmacy.Controllers
         #region AddMedicine api/Medicines
         [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpPost]
-        public async Task<IActionResult> AddMedicine([FromForm] MedicineDto dto )
+        public async Task<IActionResult> AddMedicine( MedicineDto dto )
         {
-			if (dto == null)
-			{
-				return BadRequest();
-			}
+
+            var isValidCategory = await _categoryRepo.GetByIdAsync(dto.CategoryId) != null;
+            if ( !isValidCategory ) return BadRequest($"Invalid CategoryId , No Category with Id {dto.CategoryId}");
+
+
+            # region handling image upload 
+            /*
+            // validate the image size
+            if ( !_allowedExtensions.Contains(Path.GetExtension(dto.Image.FileName).ToLower()) )
+                return BadRequest("Invalid Image Format, Only .jpg and .png are allowed");
+            // validate the image size
+            if ( dto.Image.Length > _maxAllowedImageSize )
+                return BadRequest("Image size is too large, Maximum allowed size is 5MB");
+
+            // to store the image in the database we need to convert it to byte array
+            using var dataStream = new MemoryStream();
+            await dto.Image.CopyToAsync(dataStream);
+            */
+            #endregion
 
             var medicine = new Medicine
             {
                 Name = dto.Name,
                 Description = dto.Description,
                 Price = dto.Price,
+                //Image = dataStream.ToArray(),
                 CategoryId = dto.CategoryId,
             };
-			if (dto.Image != null)
-			{
-				var result = UploadHandler.Upload(dto.Image, "medicines");
-				if (!string.IsNullOrEmpty(result.ErrorMessage))
-				{
-					return BadRequest(new
-					{
-						message = result.ErrorMessage
-					});
-				}
 
-				medicine.MedicineImagePath = result.FileName;
-
-				await _medicineRepo.AddAsync(medicine);
-				await _medicineRepo.Save();
-
-				return Ok(medicine);
-			}
-
-			await _medicineRepo.AddAsync(medicine);
+            await _medicineRepo.AddAsync(medicine);
             await _medicineRepo.Save();
             return Ok(medicine);
         }
@@ -101,11 +90,11 @@ namespace Pharmacy.Controllers
         #region UpdateMedicine api/Medicines/{id}
         [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMedicine( int id, [FromForm] UpdateMedicineDto dto )
+        public async Task<IActionResult> UpdateMedicine( int id,MedicineDto dto )
         {
             var medicine = await _medicineRepo.GetByIdAsync(id);
 
-            #region validations
+            // validations
             // validate if the Medicine id is not found
             if ( medicine == null )
                 return NotFound($"No Medicine Found with Id {id}");
@@ -114,9 +103,26 @@ namespace Pharmacy.Controllers
             var isValidCategory = await _categoryRepo.GetByIdAsync(dto.CategoryId) != null;
             if ( !isValidCategory ) return BadRequest($"Invalid Category No Category with Id {dto.CategoryId}");
 
-            // handling image upload
-          
-            
+
+            #region  handling image upload
+            /*
+            if ( dto.Image != null )
+            {
+                // validate the image size
+                if ( !_allowedExtensions.Contains(Path.GetExtension(dto.Image.FileName).ToLower()) )
+                    return BadRequest("Invalid Image Format, Only .jpg and .png are allowed");
+
+                // validate the image size
+                if ( dto.Image.Length > _maxAllowedImageSize )
+                    return BadRequest("Image size is too large, Maximum allowed size is 5MB");
+
+                // to store the image in the database we need to convert it to byte array
+                using var dataStream = new MemoryStream();
+                await dto.Image.CopyToAsync(dataStream);
+
+                medicine.Image = dataStream.ToArray();
+            }
+            */
             #endregion
 
             medicine.Name = dto.Name;
@@ -142,7 +148,7 @@ namespace Pharmacy.Controllers
                 return NotFound($"No Medicine Found with Id {id}");
 
             await _medicineRepo.DeleteAsync(medicine);
-            await _medicineRepo.Save(); 
+            await _medicineRepo.Save();
             return Ok(medicine);
         }
         #endregion
@@ -166,19 +172,35 @@ namespace Pharmacy.Controllers
         #region UpdateMedicineByName => PUT api/Medicines/name/{name}
         [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpPut("name/{name}")]
-        public async Task<IActionResult> UpdateMedicineByName( string name, [FromForm] UpdateMedicineDto dto )
+        public async Task<IActionResult> UpdateMedicineByName( string name, MedicineDto dto )
         {
             var medicine = await _medicineRepo.GetByNameAsync(name);
-            if ( medicine == null )
-                return NotFound($"No Medicine Named {name}");
+            if ( medicine == null ) return NotFound($"No Medicine Named {name}");
 
             // validate the entered category id
             var isValidCategory = await _categoryRepo.GetByIdAsync(dto.CategoryId) != null;
-            if ( !isValidCategory )
-                return BadRequest($"Invalid Category No Category with Id {dto.CategoryId}");
+            if ( !isValidCategory ) return BadRequest($"Invalid Category No Category with Id {dto.CategoryId}");
 
-            // handling image upload
-          
+            #region  handling image upload
+            /*
+            if ( dto.Image != null )
+            {
+                // validate the image size
+                if ( !_allowedExtensions.Contains(Path.GetExtension(dto.Image.FileName).ToLower()) )
+                    return BadRequest("Invalid Image Format, Only .jpg and .png are allowed");
+
+                // validate the image size
+                if ( dto.Image.Length > _maxAllowedImageSize )
+                    return BadRequest("Image size is too large, Maximum allowed size is 5MB");
+
+                // to store the image in the database we need to convert it to byte array
+                using var dataStream = new MemoryStream();
+                await dto.Image.CopyToAsync(dataStream);
+
+                medicine.Image = dataStream.ToArray();
+            }
+            */
+            #endregion
 
             medicine.Name = dto.Name;
             medicine.Description = dto.Description;
@@ -206,50 +228,50 @@ namespace Pharmacy.Controllers
 
             return Ok(medicine);
         }
-		#endregion
+        #endregion
 
 
-		#endregion
+        #endregion
 
-		#region Search Medicines => api/Medicines/search
-		[HttpGet("search")]
-		public async Task<IEnumerable<MedicineDto>> SearchMedicines(string keyword)
-		{
-			
+        #region Search Medicines => api/Medicines/search
+        [HttpGet("search")]
+        public async Task<IEnumerable<MedicineDto>> SearchMedicines( string keyword )
+        {
 
-			var medicines = await _medicineRepo.SearchMedicines(keyword);
 
-			return medicines.Select(m => new MedicineDto
-			{
-				Name = m.Name,
-				Description = m.Description,
-				Price = m.Price
-			});
-		}
-		#endregion
+            var medicines = await _medicineRepo.SearchMedicines(keyword);
 
-		#region Filter Medicines by Category => api/Medicines/filter
-		[HttpGet("filter")]
-		public async Task<IActionResult> FilterMedicinesByCategory([FromQuery] string category)
-		{
-			var medicines = await _medicineRepo.FilterMedicinesByCategory(category);
+            return medicines.Select(m => new MedicineDto
+            {
+                Name = m.Name,
+                Description = m.Description,
+                Price = m.Price
+            });
+        }
+        #endregion
 
-			if (medicines == null || !medicines.Any())
-			{
-				return NotFound("No medicines found for the specified category.");
-			}
+        #region Filter Medicines by Category => api/Medicines/filter
+        [HttpGet("filter")]
+        public async Task<IActionResult> FilterMedicinesByCategory( [FromQuery] string category )
+        {
+            var medicines = await _medicineRepo.FilterMedicinesByCategory(category);
 
-			var medicineDtos = medicines.Select(m => new MedicineDto
-			{
-				Name = m.Name,
-				Description = m.Description,
-				Price = m.Price
-			});
+            if ( medicines == null || !medicines.Any() )
+            {
+                return NotFound("No medicines found for the specified category.");
+            }
 
-			return Ok(medicineDtos);
-		}
-		#endregion
+            var medicineDtos = medicines.Select(m => new MedicineDto
+            {
+                Name = m.Name,
+                Description = m.Description,
+                Price = m.Price
+            });
 
-		#endregion
-	}
+            return Ok(medicineDtos);
+        }
+        #endregion
+
+        #endregion
+    }
 }

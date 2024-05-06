@@ -16,4 +16,6 @@ global using Microsoft.IdentityModel.Tokens;
 global using Microsoft.EntityFrameworkCore.Migrations;
 global using Microsoft.EntityFrameworkCore.Infrastructure;
 global using Pharmacy.Repositories;
+global using System.Linq.Expressions;
+
 //global using Microsoft.VisualStudio.Web.CodeGeneration.Design;
