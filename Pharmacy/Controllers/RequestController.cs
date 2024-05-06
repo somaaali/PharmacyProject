@@ -22,43 +22,36 @@ namespace Pharmacy.Controllers
 
         #region ENDPOINTS
 
-        #region Get Pending Requests
+        #region Get Requests
         [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpGet]
-        public async Task<IActionResult> GetPendingRequests()
+        public async Task<IActionResult> GetRequests()
         {
-            // Retrieve pending requests from the database
-            var pendingRequests = await _context.requests
-                .Where(r => r.Status == RequestStatus.Pending)
+            // Retrieve all requests from the database
+            var allRequests = await _context.requests
                 .Include(r => r.Medicines) // Include medicines in the query
                 .ToListAsync();
 
-            // Check if there are pending requests
-            if ( pendingRequests == null || pendingRequests.Count == 0 )
-                return NotFound("No pending requests found.");
+            if ( allRequests == null || allRequests.Count == 0 )
+                return NotFound("No requests found.");
 
-            // Create a list to store RequestDto objects
             var requestDtos = new List<RequestDto>();
-
-            // Iterate through each pending request and create a RequestDto object
-            foreach ( var request in pendingRequests )
+            foreach ( var request in allRequests )
             {
-                // Find the patient associated with the request
+                // Find the patient 
                 var patient = await _userManager.FindByIdAsync(request.UserId);
                 if ( patient == null )
                 {
-                    // Log or handle the case where patient is null
-                    continue; // Skip this request and move to the next one
+                    continue;
                 }
 
-                // Create a RequestDto object and populate its properties
                 var requestDto = new RequestDto
                 {
                     PatientName = patient.UserName,
                     MedicinesNames = request.Medicines.Select(m => m.Name).ToList(),
+                    Status = request.Status
                 };
 
-                // Add the RequestDto object to the list
                 requestDtos.Add(requestDto);
             }
 
