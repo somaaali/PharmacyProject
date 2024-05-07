@@ -23,7 +23,6 @@ namespace Pharmacy.Controllers
         #region ENDPOINTS
 
         #region Get Requests
-        [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpGet]
         public async Task<IActionResult> GetRequests()
         {
