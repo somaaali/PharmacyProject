@@ -26,7 +26,6 @@ namespace Pharmacy.Controllers
         [HttpGet]
         public async Task<IActionResult> GetRequests()
         {
-            // Retrieve all requests from the database
             var allRequests = await _context.requests
                 .Include(r => r.Medicines) // Include medicines in the query
                 .ToListAsync();
@@ -37,7 +36,6 @@ namespace Pharmacy.Controllers
             var requestDtos = new List<RequestDto>();
             foreach ( var request in allRequests )
             {
-                // Find the patient 
                 var patient = await _userManager.FindByIdAsync(request.UserId);
                 if ( patient == null )
                 {
@@ -55,7 +53,6 @@ namespace Pharmacy.Controllers
                 requestDtos.Add(requestDto);
             }
 
-            // Return the list of RequestDto objects
             return Ok(requestDtos);
         }
         #endregion
@@ -98,31 +95,25 @@ namespace Pharmacy.Controllers
         }
         #endregion
 
-
         #region Get Requests By Patient Username
         [HttpGet("{username}")]
 
         public async Task<IActionResult> GetRequestsByPatientUsername(string username)
 		{
-			// Find the user by username
 			var user = await _userManager.FindByNameAsync(username);
 			if (user == null)
 				return NotFound("User not found.");
 
-			// Retrieve requests associated with the user
 			var requests = await _context.requests
 				.Include(r => r.Medicines) 
 				.Where(r => r.UserId == user.Id)
 				.ToListAsync();
 
-			// Check if requests exist
 			if (requests == null || requests.Count == 0)
 				return NotFound("No requests found for this user.");
 
-			// Create a list to store RequestDto objects
 			var requestDtos = new List<RequestDto>();
 
-			// Iterate through each request and create a RequestDto object
 			foreach (var request in requests)
 			{
 				var requestDto = new RequestDto
@@ -133,11 +124,9 @@ namespace Pharmacy.Controllers
 					Status = request.Status
 				};
 
-				// Add the RequestDto object to the list
 				requestDtos.Add(requestDto);
 			}
 
-			// Return the list of RequestDto objects
 			return Ok(requestDtos);
 		}
         #endregion
@@ -147,17 +136,14 @@ namespace Pharmacy.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRequestStatus( int id, [FromBody] StatusUpdateDto statusUpdate )
         {
-            // Find the request by id
             var request = await _context.requests.FindAsync(id);
 
             if ( request == null )
                 return NotFound();
 
-            // Validate the status string
             if ( !Enum.TryParse(statusUpdate.Status, true, out RequestStatus requestStatus) )
                 return BadRequest("Invalid status value.");
 
-            // Update request status
             request.Status = requestStatus;
             _context.SaveChanges();
 

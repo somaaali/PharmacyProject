@@ -52,7 +52,6 @@ namespace Pharmacy.Repositories
 
 		#region Additional Operations
 
-		// Update the DataRepo<T> class implementation
 		public async Task<IEnumerable<T>> FilterMedicines( string keyword)
 		{
 			// Ensure that T is a type that has a Name property
