@@ -101,7 +101,6 @@ namespace Pharmacy.Controllers
 
 
         #region Get Requests By Patient Username
-        [Authorize(Roles = StaticUserRoles.ADMIN)]
         [HttpGet("{username}")]
 
         public async Task<IActionResult> GetRequestsByPatientUsername(string username)
