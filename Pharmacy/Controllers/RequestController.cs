@@ -86,7 +86,7 @@ namespace Pharmacy.Controllers
 
                 var requestDto = new RequestDto
                 {
-                    RequestId = request.Id, // Assign the correct request ID
+                    RequestId = request.Id, 
                     PatientName = patient.UserName,
                     MedicinesNames = request.Medicines.Select(m => m.Name).ToList(),
                     Status = request.Status // Include the status
@@ -128,7 +128,8 @@ namespace Pharmacy.Controllers
 			{
 				var requestDto = new RequestDto
 				{
-					PatientName = username,
+                    RequestId = request.Id,
+                    PatientName = username,
 					MedicinesNames = request.Medicines.Select(m => m.Name).ToList(),
 					Status = request.Status
 				};
